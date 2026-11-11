@@ -1,36 +1,64 @@
 import express from 'express';
-
-const articlesInfo = [
-  {name: 'learn-react', upvote: 0, comments: []},
-  {name: 'learn-node', upvote: 0, comments: []},
-  {name: 'learn-mongodb', upvote: 0, comments: []},
-]
+import { MongoClient, ServerApiVersion } from 'mongodb';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
-app.post('/api/articles/:name/upvote', (req, res) => {
-  const article = articlesInfo.find(a => a.name === req.params.name);
-  article.upvote += 1;
-  res.send(`Success! The article ${req.params.name} now has ${article.upvote} upvotes.`);
-});
+let db;
 
-app.post('/api/articles/:name/comments', (req, res) => {
-  const { name } = req.params;
-  const { postedBy, text } = req.body;
+async function connectToDb() {
+  const url = 'mongodb://127.0.0.1:27017';
 
-  const article = articlesInfo.find(a => a.name === name);
-
-  article.comments.push({ 
-    postedBy, 
-    text 
+  const client = new MongoClient(url, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    }
   });
 
+  await client.connect();
+
+  db = client.db('full-stack-react-db');
+}
+
+app.get('/api/articles/:name', async (req, res) => {
+  const { name } = req.params;
+  const article = await db.collection('articles').findOne({ name });
   res.json(article);
 });
 
+app.post('/api/articles/:name/upvote', async (req, res) => {
+  const { name } = req.params;
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port http://localhost:${PORT}`);
+  const updatedArticle = await db.collection('articles').findOneAndUpdate({ name }, {
+    $inc: { upvote: 1 },
+  }, {
+    reurnDocument: 'after',
+  });
+
+  res.json(updatedArticle);
 });
+
+app.post('/api/articles/:name/comments', async (req, res) => {
+  const { name } = req.params;
+  const { postedBy, text } = req.body;
+  const newComment = { postedBy, text }
+  const updatedArticle = await db.collection('articles').findOneAndUpdate({ name }, {
+    $push: { comments: newComment }
+  }, {
+    reurnDocument: 'after'
+  });
+  res.json(updatedArticle);
+});
+
+
+async function start() {
+  await connectToDb();
+  app.listen(PORT, () => {
+    console.log(`Server is running on port http://localhost:${PORT}`);
+  });
+}
+
+start();
