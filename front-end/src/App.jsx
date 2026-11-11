@@ -3,17 +3,19 @@ import {
   RouterProvider,
 } from 'react-router-dom';
 
-
 import './App.css'
+
 import HomePage from './pages/HomePage'
 import AboutPage from './pages/AboutPage';
-import ArticlesListPage from './pages/ArticlesList';
+import ArticlesListPage from './pages/ArticlesListPage';
 import ArticlePage from './pages/ArticlePage';
+import NotFoundPage from './pages/NotFoundPage';
 import { Layout } from './Layout';
 
 const routes = [{
   path: '/',
   element: <Layout/>,
+  errorElement: <NotFoundPage/>,
   children: [{
     path: '/',
     element: <HomePage/>
@@ -24,12 +26,10 @@ const routes = [{
     path: '/articles',
     element: <ArticlesListPage/>
   }, {
-    path: '/articles/individual',
+    path: '/articles/:name',
     element: <ArticlePage/>
   }]
 }]
-
-
 
 const router = createBrowserRouter(routes);
 
