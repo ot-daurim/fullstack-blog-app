@@ -8,7 +8,7 @@ import './App.css'
 import HomePage from './pages/HomePage'
 import AboutPage from './pages/AboutPage';
 import ArticlesListPage from './pages/ArticlesListPage';
-import ArticlePage from './pages/ArticlePage';
+import ArticlePage, { loader as articleLoader } from './pages/ArticlePage';
 import NotFoundPage from './pages/NotFoundPage';
 import { Layout } from './Layout';
 
@@ -27,7 +27,8 @@ const routes = [{
     element: <ArticlesListPage/>
   }, {
     path: '/articles/:name',
-    element: <ArticlePage/>
+    element: <ArticlePage/>,
+    loader: articleLoader
   }]
 }]
 

@@ -35,7 +35,7 @@ app.post('/api/articles/:name/upvote', async (req, res) => {
   const updatedArticle = await db.collection('articles').findOneAndUpdate({ name }, {
     $inc: { upvote: 1 },
   }, {
-    reurnDocument: 'after',
+    returnDocument: 'after',
   });
 
   res.json(updatedArticle);
@@ -48,7 +48,7 @@ app.post('/api/articles/:name/comments', async (req, res) => {
   const updatedArticle = await db.collection('articles').findOneAndUpdate({ name }, {
     $push: { comments: newComment }
   }, {
-    reurnDocument: 'after'
+    returnDocument: 'after'
   });
   res.json(updatedArticle);
 });
